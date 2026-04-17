@@ -116,29 +116,20 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AiVideoProcessingWindow.xaml.cs">
+      <DependentUpon>AiVideoProcessingWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="AuthWindow.xaml.cs">
       <DependentUpon>AuthWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="BdClass.cs" />
-    <Compile Include="BdReg.xaml.cs">
-      <DependentUpon>BdReg.xaml</DependentUpon>
+    <Compile Include="SignPlacementCard.xaml.cs">
+      <DependentUpon>SignPlacementCard.xaml</DependentUpon>
     </Compile>
-    <Compile Include="CreatePathWindow.xaml.cs">
-      <DependentUpon>CreatePathWindow.xaml</DependentUpon>
-    </Compile>
+    <Page Include="AiVideoProcessingWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="AuthWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="BdReg.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CreatePathWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -146,10 +137,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
+    <Page Include="SignPlacementCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ProcessFrame.cs" />

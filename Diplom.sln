@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.5.11709.299 stable
+VisualStudioVersion = 18.5.11709.299
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Diplom", "Diplom.csproj", "{0DA8638B-5FFD-40EC-B82E-EDCDFDF76C87}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary2", "..\..\ClassLibrary2\ClassLibrary2\ClassLibrary2.csproj", "{34A7BFC1-E707-4C6D-A48F-46356B1437E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthUiLibrary", "..\AuthUiLibrary\AuthUiLibrary.csproj", "{C0260F15-5DDE-41B3-A817-D8D09979AD12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp3", "..\WpfApp3\WpfApp3.csproj", "{7811741F-A874-438D-B6E5-B269A6011105}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,14 @@ Global
 		{C0260F15-5DDE-41B3-A817-D8D09979AD12}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C0260F15-5DDE-41B3-A817-D8D09979AD12}.Release|x64.ActiveCfg = Release|Any CPU
 		{C0260F15-5DDE-41B3-A817-D8D09979AD12}.Release|x64.Build.0 = Release|Any CPU
+		{7811741F-A874-438D-B6E5-B269A6011105}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7811741F-A874-438D-B6E5-B269A6011105}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7811741F-A874-438D-B6E5-B269A6011105}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7811741F-A874-438D-B6E5-B269A6011105}.Debug|x64.Build.0 = Debug|Any CPU
+		{7811741F-A874-438D-B6E5-B269A6011105}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7811741F-A874-438D-B6E5-B269A6011105}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7811741F-A874-438D-B6E5-B269A6011105}.Release|x64.ActiveCfg = Release|Any CPU
+		{7811741F-A874-438D-B6E5-B269A6011105}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

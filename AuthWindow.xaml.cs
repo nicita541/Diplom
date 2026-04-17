@@ -14,7 +14,7 @@ namespace Diplom
 
         private void AuthView_LoginSucceeded(ClassLibrary2.UserLog userLog)
         {
-            var dashboard = new MainWindow();
+            var dashboard = new AiVideoProcessingWindow();
             dashboard.Show();
             Close();
         }
