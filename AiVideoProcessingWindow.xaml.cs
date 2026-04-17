@@ -1,34 +1,39 @@
-﻿using System;
+﻿using ClassLibrary2;
+using Microsoft.Win32;
+using OpenCvSharp;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using ClassLibrary2;
+using System.Windows.Threading;
+using static System.Net.Mime.MediaTypeNames;
+
 
 
 namespace Diplom
 {
 
     // TODO:
-    // 1. Реализовать кнопку выбора пути к видеофайлу.
     // 2. Реализовать кнопку "Извлечь кадры".
-    // 3. Реализовать кнопку "Запустить полный анализ".
-    // 4. Реализовать кнопку "Остановить процесс".
+    // 3. Реализовать обработку видео
     // 5. Реализовать кнопку "Открыть журнал".
     // 6. Доделать отображение статистики:
-    //    - сколько кадров обработано / всего кадров,
     //    - сколько знаков найдено,
     //    - сколько записей сохранено в БД.
-    // 7. Реализовать вывод видео в блок "Главный просмотр".
-    // 8. Реализовать показ текущего кадра и лучшего снимка найденного знака.
     // 9. Связать результаты анализа с карточками SignPlacement.
     // 10. Подключить автоматическую запись результатов в БД.
 
@@ -38,18 +43,36 @@ namespace Diplom
     /// </summary>
     /// 
 
-    public partial class AiVideoProcessingWindow : Window
+    public partial class AiVideoProcessingWindow : System.Windows.Window
     {
 
         int? id_rout;
         int? id_direct;
         int? id_picket;
 
+        int fullVideoCadr = 0;
+
+        bool StartStop = false;
+        private Task _extractTask;
+        private CancellationTokenSource _extractCts;
+
+        private DispatcherTimer _timer;
         public AiVideoProcessingWindow()
         {
             InitializeComponent();
             UpdateRout_cbx();
+
+            _timer = new DispatcherTimer();
+            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer.Tick += Timer_Tick;
+            _timer.Start();
         }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            UpdateCadt_tbx();
+        }
+
 
         private void UpdateRout_cbx()
         {
@@ -139,7 +162,7 @@ namespace Diplom
             
         }
 
-        private void Start_Analiz_Button_Click(object sender, RoutedEventArgs e)
+        private async void Start_Analiz_Button_Click(object sender, RoutedEventArgs e)
         {
             if (Path_tbx.Text == "")
             {
@@ -152,6 +175,139 @@ namespace Diplom
                 MessageBox.Show("Не выбран путь сохранения");
                 return;
             }
+            if (StartStop)
+            {
+                MessageBox.Show("Процесс уже запущен");
+                return;
+            }
+
+            try
+            {
+                StartStop = true;
+                _extractCts = new CancellationTokenSource();
+
+                _extractTask = ExtractFramesAsync(Path_tbx.Text, _extractCts.Token);
+                await _extractTask;
+            }
+            catch (OperationCanceledException)
+            {
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка: " + ex.Message);
+            }
+            finally
+            {
+                StartStop = false;
+                _extractTask = null;
+                _extractCts?.Dispose();
+                _extractCts = null;
+            }
+        }
+
+        private void UpdateCadt_tbx()
+        {
+            Cadr_tbx.Text = $"{fullVideoCadr}";
+        }
+
+        private void Parh_New_Button_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Title = "Выберите видеофайл",
+                Filter = "Видео файлы (*.mp4;*.avi;*.mov)|*.mp4;*.avi;*.mov|Все файлы (*.*)|*.*",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                // сюда подставь имя своего TextBox
+                Path_tbx.Text = dialog.FileName;
+            }
+        }
+
+        private async Task ExtractFramesAsync(string videoPath, CancellationToken token)
+        {
+            await Task.Run(async () =>
+            {
+                using (var capture = new VideoCapture(videoPath))
+                {
+                    if (!capture.IsOpened())
+                        throw new Exception("Не удалось открыть видео.");
+
+                    capture.Set(VideoCaptureProperties.PosFrames, fullVideoCadr);
+
+
+                    double fps = capture.Fps;
+                    if (fps <= 0)
+                        fps = 25;
+
+                    int delay = (int)(1000.0 / fps);
+
+
+                    while (true)
+                    {
+                        token.ThrowIfCancellationRequested();
+
+                        using (Mat frame = new Mat())
+                        {
+                            bool success = capture.Read(frame);
+
+                            if (!success || frame.Empty())
+                                break;
+
+                            fullVideoCadr++;
+
+                            BitmapImage image = MatToBitmapImage(frame);
+
+                            await Dispatcher.InvokeAsync(() =>
+                            {
+                                OutImage(image);
+                            });
+                        }
+
+                        await Task.Delay(delay, token);
+                    }
+                }
+            }, token);
+        }
+
+
+        private void OutImage(BitmapImage image)
+        {
+            VideoFrameImage.Source = image;
+        }
+
+
+        private BitmapImage MatToBitmapImage(Mat mat)
+        {
+            Cv2.ImEncode(".bmp", mat, out byte[] buffer);
+
+            using (var ms = new MemoryStream(buffer))
+            {
+                BitmapImage image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.StreamSource = ms;
+                image.EndInit();
+                image.Freeze();
+                return image;
+            }
+        }
+
+        private void Stop_Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (!StartStop || _extractCts == null)
+            {
+                return;
+            }
+
+            _extractCts.Cancel();
         }
     }
+
+
+
 }

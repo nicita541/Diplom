@@ -400,6 +400,7 @@
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
                                     Margin="0,0,10,0"
+                                    Click="Parh_New_Button_Click"
                                     Style="{StaticResource InlineIconButtonStyle}"/>
                         </Grid>
 
@@ -443,7 +444,8 @@
 
                         <Button Content="Остановить процесс"
                                 Style="{StaticResource GhostButtonStyle}"
-                                Margin="0,0,0,10"/>
+                                Margin="0,0,0,10"
+                                Click="Stop_Button_Click"/>
 
                         <Button Content="Открыть журнал"
                                 Style="{StaticResource GhostButtonStyle}"/>
@@ -468,7 +470,7 @@
                 <Border Grid.Column="0" Style="{StaticResource MetricPanelStyle}">
                     <StackPanel>
                         <TextBlock Text="Кадры" Foreground="#8AA0C1" FontSize="12"/>
-                        <TextBlock Text="1842 / 5400"
+                        <TextBlock x:Name="Cadr_tbx" Text="0"
                                    Foreground="White"
                                    FontSize="24"
                                    FontWeight="Bold"
@@ -527,62 +529,10 @@
                             BorderThickness="1"
                             CornerRadius="24">
                         <Grid>
-                            <Rectangle Margin="24"
-                                       RadiusX="18"
-                                       RadiusY="18"
-                                       Stroke="#1E2E47"
-                                       StrokeThickness="1.2"
-                                       StrokeDashArray="5 5"/>
+                            <Image x:Name="VideoFrameImage"
+                                   Stretch="Uniform"
+                                   Margin="24"/>
 
-                            <TextBlock Text="VIDEO FRAME"
-                                       Foreground="#283D59"
-                                       FontSize="40"
-                                       FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-
-                            <Border Width="220"
-                                    Height="116"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Top"
-                                    Margin="36"
-                                    Background="#09111D"
-                                    BorderBrush="#3D7FD4"
-                                    BorderThickness="2"
-                                    CornerRadius="14"/>
-
-                            <Border Width="188"
-                                    Height="96"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"
-                                    Margin="0,0,72,0"
-                                    Background="#09111D"
-                                    BorderBrush="#2F6AB8"
-                                    BorderThickness="2"
-                                    CornerRadius="14"/>
-
-                            <Border HorizontalAlignment="Left"
-                                    VerticalAlignment="Bottom"
-                                    Margin="46,0,0,54"
-                                    Background="#0A1423"
-                                    BorderBrush="#244164"
-                                    BorderThickness="1"
-                                    CornerRadius="14"
-                                    Padding="14,10"
-                                    MaxWidth="360">
-                                <StackPanel>
-                                    <TextBlock Text="Текущее размещение: знак ограничения скорости"
-                                               Foreground="#E7F0FD"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"
-                                               TextWrapping="Wrap"/>
-                                    <TextBlock Text="Лучший кадр выбран для photo"
-                                               Foreground="#8AA3C8"
-                                               FontSize="11"
-                                               Margin="0,4,0,0"
-                                               TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </Border>
                         </Grid>
                     </Border>
 
