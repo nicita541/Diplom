@@ -393,7 +393,7 @@
 
                         <TextBlock Text="Путь к файлу" Style="{StaticResource InputLabelStyle}"/>
                         <Grid Margin="0,0,0,18">
-                            <TextBox Text="D:\Video\route_session_07.mp4"
+                            <TextBox x:Name="Path_tbx" Text="D:\Video\route_session_07.mp4"
                                      Style="{StaticResource PathTextBoxStyle}"/>
 
                             <Button Content="..."
@@ -413,24 +413,20 @@
 
                                 <TextBlock Text="Маршрут" Style="{StaticResource InputLabelStyle}"/>
                                 <ComboBox x:Name="RouteComboBox"
-                  Style="{StaticResource RouteComboBoxStyle}"
-                  SelectedIndex="0">
-                                    <ComboBoxItem Content="Выберите маршрут"/>
+                                          Style="{StaticResource RouteComboBoxStyle}"
+                                          SelectionChanged="RouteComboBox_SelectionChanged">
                                 </ComboBox>
 
                                 <TextBlock Text="Направление" Style="{StaticResource InputLabelStyle}"/>
                                 <ComboBox x:Name="DirectionComboBox"
-                  Style="{StaticResource RouteComboBoxStyle}"
-                  SelectedIndex="0">
-                                    <ComboBoxItem Content="Выберите направление"/>
+                                          Style="{StaticResource RouteComboBoxStyle}"
+                                          SelectionChanged="DirectionComboBox_SelectionChanged">
                                 </ComboBox>
 
                                 <TextBlock Text="Пикет" Style="{StaticResource InputLabelStyle}"/>
                                 <ComboBox x:Name="PicketComboBox"
-                  Style="{StaticResource RouteComboBoxStyle}"
-                  SelectedIndex="0"
-                  Margin="0">
-                                    <ComboBoxItem Content="Выберите пикет"/>
+                                          Style="{StaticResource RouteComboBoxStyle}"
+                                          SelectionChanged="PicketComboBox_SelectionChanged">
                                 </ComboBox>
                             </StackPanel>
                         </Border>
@@ -442,7 +438,8 @@
 
                         <Button Content="Запустить полный анализ"
                                 Style="{StaticResource PrimaryButtonStyle}"
-                                Margin="0,0,0,10"/>
+                                Margin="0,0,0,10"
+                                Click="Start_Analiz_Button_Click"/>
 
                         <Button Content="Остановить процесс"
                                 Style="{StaticResource GhostButtonStyle}"
