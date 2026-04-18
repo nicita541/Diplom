@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 
 namespace Diplom
 {
@@ -12,128 +15,85 @@ namespace Diplom
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl;
-
-        // Очередь исходных кадров
-        private readonly Queue<byte[]> _frameQueue = new Queue<byte[]>();
+        private readonly JsonSerializerOptions _jsonOptions;
 
         public ProcessFrame(string baseUrl = "http://127.0.0.1:8000")
         {
             _baseUrl = baseUrl.TrimEnd('/');
-            _httpClient = new HttpClient();
-            _httpClient.Timeout = TimeSpan.FromSeconds(60);
+            _httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(60)
+            };
+
+            _jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
         }
 
-        public async Task<bool> StartModelAsync(string modelPath, CancellationToken token = default(CancellationToken))
+        public async Task<List<DetectedObjectInfo>> Process(BitmapImage imag, float confThreshold = 0.5f)
         {
-            var request = new StartModelRequest();
-            request.model_path = modelPath;
+            byte[] image = BitmapImageToBytes(imag);
+
+            if (image == null || image.Length == 0)
+                throw new ArgumentException("Изображение пустое", nameof(image));
+
+            var request = new DetectRequest
+            {
+                image_base64 = Convert.ToBase64String(image),
+                conf_threshold = confThreshold
+            };
 
             string json = JsonSerializer.Serialize(request);
 
             using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
-            using (HttpResponseMessage response = await _httpClient.PostAsync(_baseUrl + "/start_model", content, token))
+            using (HttpResponseMessage response = await _httpClient.PostAsync(_baseUrl + "/detect", content))
             {
                 string responseText = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
-                    throw new Exception("Ошибка запуска модели: " + responseText);
+                    throw new Exception("Ошибка Python сервера: " + responseText);
 
-                return true;
+                DetectResponse result = JsonSerializer.Deserialize<DetectResponse>(responseText, _jsonOptions);
+
+                if (result == null)
+                    throw new Exception("Пустой ответ от сервера");
+
+                return result.objects ?? new List<DetectedObjectInfo>();
             }
         }
 
-        public async Task<bool> StopModelAsync(CancellationToken token = default(CancellationToken))
+        public static byte[] BitmapImageToBytes(BitmapImage image)
         {
-            using (var content = new StringContent("", Encoding.UTF8, "application/json"))
-            using (HttpResponseMessage response = await _httpClient.PostAsync(_baseUrl + "/stop_model", content, token))
+            if (image == null)
+                return null;
+
+            var encoder = new JpegBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(image));
+
+            using (var stream = new MemoryStream())
             {
-                string responseText = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
-                    throw new Exception("Ошибка остановки модели: " + responseText);
-
-                return true;
+                encoder.Save(stream);
+                return stream.ToArray();
             }
         }
-
-        public async Task<ProcessFrameResult> ProcessFrameAsync(byte[] frameBytes, float confThreshold = 0.25f, CancellationToken token = default(CancellationToken))
-        {
-            // Кладем исходный кадр в очередь перед отправкой
-            lock (_frameQueue)
-            {
-                _frameQueue.Enqueue(frameBytes);
-            }
-
-            string frameBase64 = Convert.ToBase64String(frameBytes);
-
-            var request = new ProcessFrameRequest();
-            request.frame_base64 = frameBase64;
-            request.conf_threshold = confThreshold;
-
-            string json = JsonSerializer.Serialize(request);
-
-            using (var content = new StringContent(json, Encoding.UTF8, "application/json"))
-            using (HttpResponseMessage response = await _httpClient.PostAsync(_baseUrl + "/process_frame", content, token))
-            {
-                string responseText = await response.Content.ReadAsStringAsync();
-
-                if (!response.IsSuccessStatusCode)
-                    throw new Exception("Ошибка обработки кадра: " + responseText);
-
-                var options = new JsonSerializerOptions();
-                options.PropertyNameCaseInsensitive = true;
-
-                ProcessFrameResponse responseObject =
-                    JsonSerializer.Deserialize<ProcessFrameResponse>(responseText, options);
-
-                if (responseObject == null)
-                    throw new Exception("Пустой ответ от Python сервера.");
-
-                var result = new ProcessFrameResult();
-
-                // Обработанный кадр
-                result.FrameBytes = Convert.FromBase64String(responseObject.frame_base64);
-                result.Objects = responseObject.objects ?? new List<DetectedObjectInfo>();
-
-                // Достаем исходный кадр из очереди
-                lock (_frameQueue)
-                {
-                    if (_frameQueue.Count > 0)
-                        result.SourceFrameBytes = _frameQueue.Dequeue();
-                }
-
-                return result;
-            }
-        }
-
     }
 
-    public class StartModelRequest
-    {
-        public string model_path { get; set; }
-    }
 
-    public class ProcessFrameRequest
+
+    public class DetectRequest
     {
-        public string frame_base64 { get; set; }
+        public string image_base64 { get; set; }
         public float conf_threshold { get; set; }
     }
 
-    public class ProcessFrameResponse
+    public class DetectResponse
     {
         public List<DetectedObjectInfo> objects { get; set; }
-        public string frame_base64 { get; set; }
-    }
-
-    public class ProcessFrameResult
-    {
-        // Обработанный кадр
-        public byte[] FrameBytes { get; set; }
-
-        // Исходный кадр, который ушел на обработку
-        public byte[] SourceFrameBytes { get; set; }
-
-        public List<DetectedObjectInfo> Objects { get; set; }
+        public int image_width { get; set; }
+        public int image_height { get; set; }
+        public string model_path { get; set; }
+        public string device { get; set; }
     }
 
     public class DetectedObjectInfo

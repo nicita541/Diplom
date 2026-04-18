@@ -45,6 +45,9 @@ namespace Diplom
 
     public partial class AiVideoProcessingWindow : System.Windows.Window
     {
+        ProcessFrame processFrame;
+
+        List<DetectedObjectInfo> boxes = new List<DetectedObjectInfo>();
 
         int? id_rout;
         int? id_direct;
@@ -61,6 +64,8 @@ namespace Diplom
         {
             InitializeComponent();
             UpdateRout_cbx();
+
+            processFrame = new ProcessFrame();
 
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
@@ -262,23 +267,91 @@ namespace Diplom
 
                             BitmapImage image = MatToBitmapImage(frame);
 
+                            if (fullVideoCadr % 3 == 0)
+                            {
+                                boxes = await processFrame.Process(image);
+                            }
+
                             await Dispatcher.InvokeAsync(() =>
                             {
-                                OutImage(image);
+                                OutImage(image, boxes);
                             });
                         }
 
                         await Task.Delay(delay, token);
-                    }
+                    } 
                 }
             }, token);
         }
 
 
-        private void OutImage(BitmapImage image)
+        private void OutImage(BitmapImage image, List<DetectedObjectInfo> boxes)
         {
-            VideoFrameImage.Source = image;
+            if (image == null)
+                return;
+
+            var visual = new DrawingVisual();
+
+            using (DrawingContext dc = visual.RenderOpen())
+            {
+                dc.DrawImage(image, new System.Windows.Rect(0, 0, image.PixelWidth, image.PixelHeight));
+
+                if (boxes != null)
+                {
+                    foreach (var box in boxes)
+                    {
+                        var pen = new System.Windows.Media.Pen(System.Windows.Media.Brushes.Lime, 2);
+
+                        dc.DrawRectangle(
+                            null,
+                            pen,
+                            new System.Windows.Rect(
+                                box.x1,
+                                box.y1,
+                                Math.Max(1, box.x2 - box.x1),
+                                Math.Max(1, box.y2 - box.y1))
+                        );
+
+                        string label = $"{box.class_name} {box.confidence * 100:F1}%";
+
+                        var text = new FormattedText(
+                            label,
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            FlowDirection.LeftToRight,
+                            new Typeface("Arial"),
+                            18,
+                            System.Windows.Media.Brushes.Lime,
+                            1.0
+                        );
+
+                        double textX = box.x1;
+                        double textY = Math.Max(0, box.y1 - 22);
+
+                        dc.DrawRectangle(
+                            System.Windows.Media.Brushes.Black,
+                            null,
+                            new System.Windows.Rect(textX, textY, text.Width + 6, text.Height + 4)
+                        );
+
+                        dc.DrawText(text, new System.Windows.Point(textX + 3, textY + 2));
+                    }
+                }
+            }
+
+            var renderedBitmap = new RenderTargetBitmap(
+                image.PixelWidth,
+                image.PixelHeight,
+                image.DpiX > 0 ? image.DpiX : 96,
+                image.DpiY > 0 ? image.DpiY : 96,
+                PixelFormats.Pbgra32
+            );
+
+            renderedBitmap.Render(visual);
+            VideoFrameImage.Source = renderedBitmap;
         }
+
+
+
 
 
         private BitmapImage MatToBitmapImage(Mat mat)
