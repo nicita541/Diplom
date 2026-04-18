@@ -46,6 +46,7 @@ namespace Diplom
     public partial class AiVideoProcessingWindow : System.Windows.Window
     {
         ProcessFrame processFrame;
+        Tracker tracker;
 
         List<DetectedObjectInfo> boxes = new List<DetectedObjectInfo>();
 
@@ -66,6 +67,7 @@ namespace Diplom
             UpdateRout_cbx();
 
             processFrame = new ProcessFrame();
+            tracker = new Tracker();
 
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
@@ -270,6 +272,7 @@ namespace Diplom
                             if (fullVideoCadr % 3 == 0)
                             {
                                 boxes = await processFrame.Process(image);
+                                tracker.add(boxes);
                             }
 
                             await Dispatcher.InvokeAsync(() =>
@@ -312,7 +315,7 @@ namespace Diplom
                                 Math.Max(1, box.y2 - box.y1))
                         );
 
-                        string label = $"{box.class_name} {box.confidence * 100:F1}%";
+                        string label = $"{box.class_name} {box.track_id} {box.confidence * 100:F1}%";
 
                         var text = new FormattedText(
                             label,

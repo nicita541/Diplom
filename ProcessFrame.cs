@@ -98,6 +98,7 @@ namespace Diplom
 
     public class DetectedObjectInfo
     {
+        public int track_id { get; set; }
         public int class_id { get; set; }
         public string class_name { get; set; }
         public float confidence { get; set; }

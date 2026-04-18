@@ -126,6 +126,7 @@
     <Compile Include="SignPlacementCard.xaml.cs">
       <DependentUpon>SignPlacementCard.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tracker.cs" />
     <Page Include="AiVideoProcessingWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
