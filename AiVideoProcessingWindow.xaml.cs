@@ -50,9 +50,9 @@ namespace Diplom
 
         List<DetectedObjectInfo> boxes = new List<DetectedObjectInfo>();
 
-        int? id_rout;
-        int? id_direct;
-        int? id_picket;
+        static public int? id_rout;
+        static public int? id_direct;
+        static public int? id_picket;
 
         int fullVideoCadr = 0;
 

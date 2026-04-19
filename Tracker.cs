@@ -154,7 +154,7 @@ namespace Diplom
 
             foreach (var track in tracksToRemove)
             {
-                saveBdImage.PenStackPanel(track.Id);
+                saveBdImage.PenStackPanel(track.Id, imagesByTrack.FirstOrDefault(x=> x.TrekId == track.Id));
             }
             
 

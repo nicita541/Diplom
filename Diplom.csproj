@@ -120,6 +120,7 @@
     <Compile Include="AiVideoProcessingWindow.xaml.cs">
       <DependentUpon>AiVideoProcessingWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AnalizImage.cs" />
     <Compile Include="AuthWindow.xaml.cs">
       <DependentUpon>AuthWindow.xaml</DependentUpon>
     </Compile>
