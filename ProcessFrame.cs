@@ -17,7 +17,10 @@ namespace Diplom
         private readonly string _baseUrl;
         private readonly JsonSerializerOptions _jsonOptions;
 
-        public ProcessFrame(string baseUrl = "http://127.0.0.1:8000")
+        //TODO сделал локалхост пока тестирую докер
+
+        //http://127.0.0.1:8000
+        public ProcessFrame(string baseUrl = "http://localhost:8000")
         {
             _baseUrl = baseUrl.TrimEnd('/');
             _httpClient = new HttpClient
