@@ -599,13 +599,7 @@
                               Margin="0,18,0,14"
                               VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
-                        <local:SignPlacementCard
-                            Title="Размещение #03"
-                            Status="READY"
-                            Line1="sign_id: 18 | picket_id: 5"
-                            Line2="distance_m: 98 | visibility_percent: 91"
-                            Line3="sign_condition: good | berm_condition: medium"/>
+                    <StackPanel x:Name="SingnSave_StPan">
 
                     </StackPanel>
                 </ScrollViewer>

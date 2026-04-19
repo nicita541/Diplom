@@ -26,16 +26,15 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace Diplom
 {
-
-    // TODO:
-    // 2. Реализовать кнопку "Извлечь кадры".
-    // 3. Реализовать обработку видео
-    // 5. Реализовать кнопку "Открыть журнал".
-    // 6. Доделать отображение статистики:
-    //    - сколько знаков найдено,
-    //    - сколько записей сохранено в БД.
-    // 9. Связать результаты анализа с карточками SignPlacement.
-    // 10. Подключить автоматическую запись результатов в БД.
+    // TODO: Доработать трекер, снизить влияние неточной детекции на стабильность сопровождения объектов.
+    // TODO: Дообучить модель детекции и проверить улучшение качества распознавания.
+    // TODO: Добавить минимальную оценку знаков и сохранить её в результатах.
+    // TODO: Реализовать кнопку "Извлечь кадры".
+    // TODO: Реализовать кнопку "Открыть журнал".
+    // TODO: Доделать отображение статистики: количество найденных знаков.
+    // TODO: Доделать отображение статистики: количество записей, сохранённых в БД.
+    // TODO: Связать результаты анализа с карточками SignPlacement.
+    // TODO: Проверить полный сценарий работы: анализ, сохранение, статистика, журнал.
 
 
     /// <summary>
@@ -47,6 +46,7 @@ namespace Diplom
     {
         ProcessFrame processFrame;
         Tracker tracker;
+        SaveBdImage saveBdImage;
 
         List<DetectedObjectInfo> boxes = new List<DetectedObjectInfo>();
 
@@ -66,8 +66,9 @@ namespace Diplom
             InitializeComponent();
             UpdateRout_cbx();
 
-            processFrame = new ProcessFrame();
-            tracker = new Tracker();
+            processFrame = new ProcessFrame(); 
+            saveBdImage = new SaveBdImage(SingnSave_StPan);
+            tracker = new Tracker(saveBdImage);
 
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromSeconds(1);
@@ -272,7 +273,7 @@ namespace Diplom
                             if (fullVideoCadr % 3 == 0)
                             {
                                 boxes = await processFrame.Process(image);
-                                tracker.add(boxes);
+                                tracker.add(boxes, image);
                             }
 
                             await Dispatcher.InvokeAsync(() =>

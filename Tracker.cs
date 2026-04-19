@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Windows.Media.Imaging;
 
 namespace Diplom
 {
     internal class Tracker
     {
+        SaveBdImage saveBdImage;
+
+        private readonly List<imageSign> imagesByTrack = new List<imageSign>();
+
         private readonly List<Track> tracks = new List<Track>();
         private int nextTrackId = 1;
 
@@ -14,15 +20,44 @@ namespace Diplom
         private const double MinIoU = 0.05;
         private const double MinScore = 0.20;
 
-        public void add(List<DetectedObjectInfo> detectedObjectInfo)
+
+        public Tracker(SaveBdImage saveBdImage)
+        {
+            this.saveBdImage = saveBdImage;
+        }
+
+
+        private void SaveCropToTrack(int trackId, BitmapImage crop)
+        {
+            if (crop == null)
+                return;
+
+            imageSign trackImages = imagesByTrack.FirstOrDefault(x => x.TrekId == trackId);
+
+            if (trackImages == null)
+            {
+                trackImages = new imageSign
+                {
+                    TrekId = trackId,
+                    img = new List<BitmapImage>()
+                };
+
+                imagesByTrack.Add(trackImages);
+            }
+
+            trackImages.img.Add(crop);
+        }
+
+
+        public void add(List<DetectedObjectInfo> detectedObjectInfo, BitmapImage img)
         {
             if (detectedObjectInfo == null)
                 detectedObjectInfo = new List<DetectedObjectInfo>();
 
-            trek(detectedObjectInfo);
+            trek(detectedObjectInfo, img);
         }
 
-        private void trek(List<DetectedObjectInfo> currentFrame)
+        private void trek(List<DetectedObjectInfo> currentFrame, BitmapImage img)
         {
             var usedTrackIds = new HashSet<int>();
             var unmatchedDetections = new List<DetectedObjectInfo>();
@@ -74,6 +109,9 @@ namespace Diplom
                     bestTrack.MissedFrames = 0;
 
                     usedTrackIds.Add(bestTrack.Id);
+
+                    BitmapImage crop = CropBox(img, detection);
+                    SaveCropToTrack(detection.track_id, crop);
                 }
                 else
                 {
@@ -103,11 +141,70 @@ namespace Diplom
                     MissedFrames = 0
                 });
 
+                BitmapImage crop = CropBox(img, detection);
+                SaveCropToTrack(detection.track_id, crop);
+                saveBdImage.AddStackPanel(detection.track_id);
+
                 nextTrackId++;
             }
+            
+            var tracksToRemove = tracks
+                                .Where(t => t.MissedFrames > MaxMissedFrames)
+                                .ToList();
+
+            foreach (var track in tracksToRemove)
+            {
+                saveBdImage.PenStackPanel(track.Id);
+            }
+            
 
             tracks.RemoveAll(t => t.MissedFrames > MaxMissedFrames);
+
         }
+
+        private BitmapImage CropBox(BitmapImage source, DetectedObjectInfo box)
+        {
+            if (source == null || box == null)
+                return null;
+
+            int x = Math.Max(0, box.x1);
+            int y = Math.Max(0, box.y1);
+            int width = Math.Max(1, box.x2 - box.x1);
+            int height = Math.Max(1, box.y2 - box.y1);
+
+            if (x >= source.PixelWidth || y >= source.PixelHeight)
+                return null;
+
+            if (x + width > source.PixelWidth)
+                width = source.PixelWidth - x;
+
+            if (y + height > source.PixelHeight)
+                height = source.PixelHeight - y;
+
+            if (width <= 0 || height <= 0)
+                return null;
+
+            var cropped = new CroppedBitmap(source, new System.Windows.Int32Rect(x, y, width, height));
+
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(cropped));
+
+            using (var ms = new System.IO.MemoryStream())
+            {
+                encoder.Save(ms);
+                ms.Position = 0;
+
+                BitmapImage result = new BitmapImage();
+                result.BeginInit();
+                result.CacheOption = BitmapCacheOption.OnLoad;
+                result.StreamSource = ms;
+                result.EndInit();
+                result.Freeze();
+
+                return result;
+            }
+        }
+
 
         private DetectedObjectInfo PredictBox(Track track)
         {
@@ -216,6 +313,7 @@ namespace Diplom
                 y2 = box.y2
             };
         }
+
     }
 
     internal class Track
@@ -228,5 +326,10 @@ namespace Diplom
         public DetectedObjectInfo PrevBox { get; set; }
 
         public int MissedFrames { get; set; }
+    }
+    internal class imageSign
+    {
+        public int TrekId { get; set; }
+        public List<BitmapImage> img { get; set; }
     }
 }
