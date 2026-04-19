@@ -124,6 +124,7 @@
     <Compile Include="AuthWindow.xaml.cs">
       <DependentUpon>AuthWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ConvertNew.cs" />
     <Compile Include="SaveBdImage.cs" />
     <Compile Include="SignPlacementCard.xaml.cs">
       <DependentUpon>SignPlacementCard.xaml</DependentUpon>

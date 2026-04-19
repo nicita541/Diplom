@@ -33,7 +33,7 @@ namespace Diplom
 
         public async Task<List<DetectedObjectInfo>> Process(BitmapImage imag, float confThreshold = 0.5f)
         {
-            byte[] image = BitmapImageToBytes(imag);
+            byte[] image =  ConvertNew.BitmapImageToBytes(imag);
 
             if (image == null || image.Length == 0)
                 throw new ArgumentException("Изображение пустое", nameof(image));
@@ -60,21 +60,6 @@ namespace Diplom
                     throw new Exception("Пустой ответ от сервера");
 
                 return result.objects ?? new List<DetectedObjectInfo>();
-            }
-        }
-
-        public static byte[] BitmapImageToBytes(BitmapImage image)
-        {
-            if (image == null)
-                return null;
-
-            var encoder = new JpegBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(image));
-
-            using (var stream = new MemoryStream())
-            {
-                encoder.Save(stream);
-                return stream.ToArray();
             }
         }
     }

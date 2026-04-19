@@ -268,7 +268,7 @@ namespace Diplom
 
                             fullVideoCadr++;
 
-                            BitmapImage image = MatToBitmapImage(frame);
+                            BitmapImage image = ConvertNew.MatToBitmapImage(frame);
 
                             if (fullVideoCadr % 3 == 0)
                             {
@@ -352,26 +352,6 @@ namespace Diplom
 
             renderedBitmap.Render(visual);
             VideoFrameImage.Source = renderedBitmap;
-        }
-
-
-
-
-
-        private BitmapImage MatToBitmapImage(Mat mat)
-        {
-            Cv2.ImEncode(".bmp", mat, out byte[] buffer);
-
-            using (var ms = new MemoryStream(buffer))
-            {
-                BitmapImage image = new BitmapImage();
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.StreamSource = ms;
-                image.EndInit();
-                image.Freeze();
-                return image;
-            }
         }
 
         private void Stop_Button_Click(object sender, RoutedEventArgs e)

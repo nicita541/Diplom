@@ -68,7 +68,7 @@ namespace Diplom
             });
 
             //TODO Сделать расмотрение знака
-            SaveStackPanel(trek_id, sign_id, signheight, distance_m, visibility_percent, sign_condition, berm_condition, BitmapToByte(bestPhoto));
+            SaveStackPanel(trek_id, sign_id, signheight, distance_m, visibility_percent, sign_condition, berm_condition, ConvertNew.BitmapImageToBytes(bestPhoto));
         }
 
 
@@ -99,21 +99,6 @@ namespace Diplom
                 signSaved.Text = (int.Parse(signSaved.Text) + 1).ToString();
             });
 
-        }
-
-        private byte[] BitmapToByte(BitmapImage image)
-        {
-            if (image == null)
-                return null;
-
-            var encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(image));
-
-            using (var ms = new MemoryStream())
-            {
-                encoder.Save(ms);
-                return ms.ToArray();
-            }
         }
 
     }

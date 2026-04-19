@@ -39,7 +39,7 @@ namespace Diplom
             if (image == null)
                 return double.MinValue;
 
-            using (Mat mat = BitmapImageToMat(image))
+            using (Mat mat = ConvertNew.BitmapImageToMat(image))
             using (Mat gray = new Mat())
             using (Mat laplacian = new Mat())
             {
@@ -53,18 +53,7 @@ namespace Diplom
             }
         }
 
-        private static Mat BitmapImageToMat(BitmapImage image)
-        {
-            var encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(image));
-
-            using (var ms = new MemoryStream())
-            {
-                encoder.Save(ms);
-                byte[] bytes = ms.ToArray();
-                return Cv2.ImDecode(bytes, ImreadModes.Color);
-            }
-        }
+        
         //TODO заменить на реальную логику анализа изображения
         public static (int sign_id, double signheight, int distance_m, int visibility_percent, string sign_condition, string berm_condition) randimStats(BitmapImage image)
         {
