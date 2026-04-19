@@ -432,11 +432,6 @@
                             </StackPanel>
                         </Border>
 
-
-                        <Button Content="Извлечь кадры"
-                                Style="{StaticResource GhostButtonStyle}"
-                                Margin="0,0,0,12"/>
-
                         <Button Content="Запустить полный анализ"
                                 Style="{StaticResource PrimaryButtonStyle}"
                                 Margin="0,0,0,10"
@@ -447,8 +442,6 @@
                                 Margin="0,0,0,10"
                                 Click="Stop_Button_Click"/>
 
-                        <Button Content="Открыть журнал"
-                                Style="{StaticResource GhostButtonStyle}"/>
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
@@ -481,7 +474,7 @@
                 <Border Grid.Column="1" Style="{StaticResource MetricPanelStyle}">
                     <StackPanel>
                         <TextBlock Text="Знаки" Foreground="#8AA0C1" FontSize="12"/>
-                        <TextBlock Text="27"
+                        <TextBlock x:Name="Signs_tbx" Text="0"
                                    Foreground="White"
                                    FontSize="24"
                                    FontWeight="Bold"
@@ -492,7 +485,8 @@
                 <Border Grid.Column="2" Style="{StaticResource MetricPanelStyle}" Margin="0">
                     <StackPanel>
                         <TextBlock Text="Сохранено в БД" Foreground="#8AA0C1" FontSize="12"/>
-                        <TextBlock Text="4"
+                        <TextBlock x:Name="SignsSaved_tbx"
+                                   Text="0"
                                    Foreground="White"
                                    FontSize="24"
                                    FontWeight="Bold"
@@ -535,39 +529,6 @@
 
                         </Grid>
                     </Border>
-
-                    <Border Grid.Row="2"
-                            Background="#0B1320"
-                            BorderBrush="#1C2A41"
-                            BorderThickness="1"
-                            CornerRadius="16"
-                            Padding="16"
-                            Margin="0,18,0,0">
-                        <StackPanel>
-                            <DockPanel>
-                                <TextBlock Text="Ход автоматической обработки"
-                                           Foreground="#E5EEFC"
-                                           FontSize="13"
-                                           FontWeight="SemiBold"/>
-                                <TextBlock DockPanel.Dock="Right"
-                                           Text="72%"
-                                           Foreground="#9DCCFF"
-                                           FontWeight="Bold"
-                                           FontSize="13"/>
-                            </DockPanel>
-
-                            <ProgressBar Height="8"
-                                         Margin="0,12,0,0"
-                                         Value="72"
-                                         Maximum="100"/>
-
-                            <TextBlock Text="Видео разбито на кадры, повторяющиеся кадры объединены в одно размещение знака, лучший снимок и оценки подготовлены автоматически."
-                                       Foreground="#7E95B8"
-                                       FontSize="12"
-                                       Margin="0,10,0,0"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
                 </Grid>
             </Border>
         </Grid>
@@ -597,35 +558,16 @@
 
                 <ScrollViewer Grid.Row="1"
                               Margin="0,18,0,14"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled">
+                              VerticalScrollBarVisibility="Hidden"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="True"
+                              PanningMode="VerticalOnly">
                     <StackPanel x:Name="SingnSave_StPan">
 
                     </StackPanel>
                 </ScrollViewer>
 
-                <Border Grid.Row="2"
-                        Background="#0D1625"
-                        BorderBrush="#20314A"
-                        BorderThickness="1"
-                        CornerRadius="16"
-                        Padding="16">
-                    <StackPanel>
-                        <TextBlock Text="Статус записи в БД"
-                                   Foreground="#E3ECFB"
-                                   FontSize="13"
-                                   FontWeight="SemiBold"/>
-                        <ProgressBar Height="8"
-                                     Margin="0,12,0,0"
-                                     Value="66"
-                                     Maximum="100"/>
-                        <TextBlock Text="4 записи сохранены, 2 записи ожидают завершения автоматической обработки."
-                                   Foreground="#849ABD"
-                                   FontSize="12"
-                                   Margin="0,10,0,0"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Border>
+                
             </Grid>
         </Border>
     </Grid>

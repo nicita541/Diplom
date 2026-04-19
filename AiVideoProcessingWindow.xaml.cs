@@ -67,7 +67,7 @@ namespace Diplom
             UpdateRout_cbx();
 
             processFrame = new ProcessFrame(); 
-            saveBdImage = new SaveBdImage(SingnSave_StPan);
+            saveBdImage = new SaveBdImage(SingnSave_StPan, Signs_tbx, SignsSaved_tbx);
             tracker = new Tracker(saveBdImage);
 
             _timer = new DispatcherTimer();

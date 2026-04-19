@@ -11,9 +11,13 @@ namespace Diplom
     {
         Dictionary<int,List<SignPlacementCard>> stackPanels = new Dictionary<int, List<SignPlacementCard>>();
         StackPanel sp;
-        public SaveBdImage(StackPanel sp)
+        TextBlock sign;
+        TextBlock signSaved;
+        public SaveBdImage(StackPanel sp, TextBlock sign, TextBlock signSaved)
         {
             this.sp = sp;
+            this.sign = sign;
+            this.signSaved = signSaved;
         }
 
         public void AddStackPanel(int trek_id)
@@ -34,6 +38,7 @@ namespace Diplom
 
                 stackPanels[trek_id].Add(card);
                 sp.Children.Add(card);
+                sign.Text = (int.Parse(sign.Text) + 1).ToString();
 
             });
 
@@ -47,7 +52,7 @@ namespace Diplom
             });
 
             //TODO Сделать расмотрение знака
-
+            SaveStackPanel(trek_id);
         }
 
         public void SaveStackPanel(int trek_id)
@@ -57,6 +62,7 @@ namespace Diplom
             sp.Dispatcher.Invoke(() =>
             {
                 stackPanels[trek_id][0].Status = "SAVED";
+                signSaved.Text = (int.Parse(signSaved.Text) + 1).ToString();
             });
 
         }
